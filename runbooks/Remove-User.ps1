@@ -7,10 +7,9 @@ param
 $subscriptionName = "DCD-CNP-DEV"
 
 function Get-TriggerBuild {
-    param([string]$namespace)
 
     # Azure DevOps token
-    $token = ( Get-AzureKeyVaultSecret -vaultName "infra-vault-nonprod" -name "azure-devops-token" ).SecretValueText
+    $token = Get-AzKeyVaultSecret -AsPlainText -vaultName "infra-vault-nonprod" -name "azure-devops-token" 
     
     # Authentication - username:token. The username can be anything, the token is a Personal Access Token in an Azure DevOps account
     $plainTextCreds = "hmcts@hmcts.net:$token"
@@ -18,10 +17,6 @@ function Get-TriggerBuild {
     # Azure DevOps Endpoint.  This includes the org and project name of the build we're triggering
     $build_definition = 449
     $azureDevOpsEndpoint = "https://dev.azure.com/hmcts/PlatformOperations/_apis/pipelines/$build_definition/runs?api-version=6.0-preview.1"
-
-    # Get the UPN from the webhook payload
-    $requestBody = (ConvertFrom-Json -InputObject $webhookData.RequestBody)
-    $upn = $requestBody.data.alertContext.SearchResults.tables.rows[0]
 
     # HTTP request body
     $Body = @"
@@ -43,13 +38,18 @@ function Get-TriggerBuild {
 
 
 if ($webhookData) {
+
+    # Get the UPN from the webhook payload
+    $requestBody = (ConvertFrom-Json -InputObject $webhookData.RequestBody)
+    $upn = $requestBody.data.alertContext.SearchResults.tables.rows[0]
+
+
     #Authenticate as "Run-As Account" using certificate
     $connection = Get-AutomationConnection -Name AzureRunAsConnection
-    Add-AzureRMAccount -ServicePrincipal -Tenant $connection.TenantID -ApplicationId $connection.ApplicationID -CertificateThumbprint $connection.CertificateThumbprint
-    Select-AzureRMSubscription -SubscriptionName $subscriptionName
+    Connect-AzAccount -ServicePrincipal -Tenant $connection.TenantID -ApplicationId $connection.ApplicationID -CertificateThumbprint $connection.CertificateThumbprint
     
     # Trigger the build
-    Trigger-Build
+    Get-TriggerBuild
 
 }
 
