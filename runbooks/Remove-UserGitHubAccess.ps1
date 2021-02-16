@@ -4,7 +4,7 @@ param
     [object] $webhookData
 )
 
-$subscriptionName = "DCD-CNP-DEV"
+$subscriptionName = "DTS-CFTPTL-INTSVC"
 
 function Get-TriggerBuild {
 
