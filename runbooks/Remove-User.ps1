@@ -9,7 +9,7 @@ $subscriptionName = "DCD-CNP-DEV"
 function Get-TriggerBuild {
 
     # Azure DevOps token
-    $token = Get-AzKeyVaultSecret -AsPlainText -vaultName "infra-vault-nonprod" -name "azure-devops-token" 
+    $token = Get-AzKeyVaultSecret -AsPlainText -vaultName "cftptl-intsvc" -name "azure-devops-token" 
     
     # Authentication - username:token. The username can be anything, the token is a Personal Access Token in an Azure DevOps account
     $plainTextCreds = "hmcts@hmcts.net:$token"
