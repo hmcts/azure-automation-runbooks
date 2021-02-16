@@ -23,7 +23,7 @@ function Get-TriggerBuild {
 {
 	"stagesToSkip": [],
 	"templateParameters": {
-		"upn": "$upn"
+		"email_account": "$upn"
 	}
 }
 "@
